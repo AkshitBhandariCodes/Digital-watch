@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Digital Watch</title>
+    <title>Enhanced Digital & Analog Watch</title>
     <style>
         body {
             background-color: #1c1c1c;
@@ -60,6 +60,86 @@
             background-color: #2980b9;
         }
 
+        .clock-face {
+            width: 300px;
+            height: 300px;
+            border: 8px solid #f0f0f0;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Clock Markers */
+        .clock-face::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .marker {
+            position: absolute;
+            width: 6px;
+            height: 20px;
+            background-color: #f0f0f0;
+            top: 10px;
+            left: 50%;
+            transform-origin: bottom;
+            transform: rotate(0deg);
+        }
+
+        /* Hour Markers */
+        .marker:nth-child(1)  { transform: rotate(0deg); }
+        .marker:nth-child(2)  { transform: rotate(30deg); }
+        .marker:nth-child(3)  { transform: rotate(60deg); }
+        .marker:nth-child(4)  { transform: rotate(90deg); }
+        .marker:nth-child(5)  { transform: rotate(120deg); }
+        .marker:nth-child(6)  { transform: rotate(150deg); }
+        .marker:nth-child(7)  { transform: rotate(180deg); }
+        .marker:nth-child(8)  { transform: rotate(210deg); }
+        .marker:nth-child(9)  { transform: rotate(240deg); }
+        .marker:nth-child(10) { transform: rotate(270deg); }
+        .marker:nth-child(11) { transform: rotate(300deg); }
+        .marker:nth-child(12) { transform: rotate(330deg); }
+
+        /* Hands */
+        .hand {
+            width: 50%;
+            height: 6px;
+            background-color: #f0f0f0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 100%;
+            transition: transform 0.5s cubic-bezier(0.4, 2.3, 0.3, 1);
+            transform: rotate(90deg);
+        }
+
+        .hour-hand {
+            width: 35%;
+            height: 8px;
+            background-color: #f0f0f0;
+        }
+
+        .minute-hand {
+            width: 45%;
+            height: 4px;
+            background-color: #f0f0f0;
+        }
+
+        .second-hand {
+            width: 47%;
+            height: 2px;
+            background-color: #e74c3c;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -74,16 +154,44 @@
             margin-top: 20px;
             padding: 5px;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="greeting" id="greeting">Hello!</div>
-        <div class="clock" id="time">00:00:00</div>
-        <div class="date" id="date">January 1, 1970</div>
+        <div class="digital-container">
+            <div class="clock" id="time">00:00:00</div>
+            <div class="date" id="date">January 1, 1970</div>
+        </div>
+        <div class="analog-container">
+            <div class="clock-face">
+                <!-- Hour Markers -->
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <div class="marker"></div>
+                <!-- Clock Hands -->
+                <div class="hand hour-hand" id="hour-hand"></div>
+                <div class="hand minute-hand" id="minute-hand"></div>
+                <div class="hand second-hand" id="second-hand"></div>
+            </div>
+        </div>
         <div class="controls">
             <button id="toggleFormat">Toggle 12/24-Hour Format</button>
             <button id="toggleTheme">Toggle Dark/Light Theme</button>
+            <button id="toggleClock">Show/Hide Analog Clock</button>
             <label for="colorPicker">Change Clock Color:</label>
             <input type="color" id="colorPicker" value="#ffffff">
         </div>
@@ -92,6 +200,7 @@
     <script>
         let is24HourFormat = false;
         let isDarkMode = true;
+        let showAnalog = true;
 
         function updateClock() {
             const currentTime = new Date();
@@ -111,7 +220,7 @@
             const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
             const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
 
-            // Update the clock display
+            // Update the digital clock display
             document.getElementById('time').innerText = `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${period}`;
 
             // Display the current date
@@ -129,6 +238,15 @@
                 greetingElement.innerText = 'Good Evening!';
             }
 
+            // Update analog clock
+            const hourDeg = (hours % 12) * 30 + (minutes / 60) * 30; // 30 degrees per hour + minute contribution
+            const minuteDeg = minutes * 6; // 6 degrees per minute
+            const secondDeg = seconds * 6; // 6 degrees per second
+
+            document.getElementById('hour-hand').style.transform = `rotate(${hourDeg}deg)`;
+            document.getElementById('minute-hand').style.transform = `rotate(${minuteDeg}deg)`;
+            document.getElementById('second-hand').style.transform = `rotate(${secondDeg}deg)`;
+
             // Update every second
             setTimeout(updateClock, 1000);
         }
@@ -144,9 +262,16 @@
             document.body.classList.toggle('dark-mode', !isDarkMode);
         });
 
+        // Show or hide the analog clock
+        document.getElementById('toggleClock').addEventListener('click', function() {
+            showAnalog = !showAnalog;
+            document.querySelector('.analog-container').classList.toggle('hidden', !showAnalog);
+        });
+
         // Change clock text color based on user input
         document.getElementById('colorPicker').addEventListener('input', function(event) {
             document.getElementById('time').style.color = event.target.value;
+            document.querySelectorAll('.hand').forEach(hand => hand.style.backgroundColor = event.target.value);
         });
 
         // Initialize clock
