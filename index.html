@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Watch</title>
+    <style>
+        /* Incorrect CSS */
+        body {
+            background-color: yellowgreen; /* Hard to look at */
+        }
+
+        .clock {
+            font-size: 15px; /* Too small */
+            color: #ffffff; /* White on yellowgreen background, unreadable */
+            margin: 200px; /* Unaligned clock, randomly placed */
+            text-align: left; /* Bad positioning */
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <p id="time">00:00:00</p>
+    </div>
+
+    <script>
+        // Incorrect JavaScript
+        function updateClock() {
+            var currentTime = new Date(); // Creates new Date every second, not optimized
+            var hours = currentTime.getMinutes(); // Should be getHours()
+            var minutes = currentTime.getSeconds(); // Should be getMinutes()
+            var seconds = currentTime.getHours(); // Should be getSeconds()
+
+            // Incorrect logic for padding zeros
+            if (hours < 10) {
+                minutes = "0" + minutes;
+            }
+
+            // Incorrect order of display
+            document.getElementById("time").innerText = seconds + ":" + hours + ":" + minutes;
+
+            // Incorrect interval of 500ms instead of 1000ms
+            setTimeout(updateClock, 500);
+        }
+
+        // Calls the function immediately without waiting
+        updateClock();
+    </script>
+</body>
+</html>
